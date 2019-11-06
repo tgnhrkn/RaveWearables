@@ -4,7 +4,7 @@ from Maix import FFT
 import image
 import lcd
 from modules import ws2812
-from Led import LedStrip
+from Led import *
 
 # init FFT and audio?
 lcd.init()
@@ -19,9 +19,8 @@ rx.set_sample_rate(sample_rate)
 
 # init LEDs
 n_leds = 9
-ledstrip = LedStrip( 6, n_leds )
+ledstrip = FadingStrip( 6, n_leds )
 ledstrip.clear()
-print( "asdf" )
 
 # runtime vars
 img = image.Image()
@@ -37,7 +36,7 @@ while True:
     FFT_res = FFT.run(audio.to_bytes(),FFT_points)
     FFT_amp = FFT.amplitude(FFT_res)
     avg = min( 255, int( sum( FFT_amp ) / len( FFT_amp ) ) )
-    ledstrip.set( avg, avg, avg, display=True )
+    ledstrip.set(avg, avg, avg, display=True )
 
     img = img.clear()
     x_shift = 0

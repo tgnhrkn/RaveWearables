@@ -4,37 +4,26 @@ class LedStrip():
     
     def __init__( self, pin, n ):
         self.n = n
-        self.data = [ [0, 0, 0] for _ in range( self.n ) ]
+        self.data = [ (0, 0, 0) for _ in range( self.n ) ]
         self.leds = ws2812( pin, self.n )
 
-    def set( self, lcd, r, g, b, i=None, display=False ):
-        lcd.draw_string(50,120, "enter .set", lcd.WHITE, lcd.RED )
-        if i is not None:
-            pxl = self.data[i]
-            pxl[0] = r
-            pxl[1] = g
-            pxl[2] = b
+    def set( self, r, g, b, idx=None, display=False ):
+        if idx is not None:
+            self.data[idx] = ( r, g, b )
         else:
-            for pxl in self.data:
-                pxl[0] = r
-                pxl[1] = g
-                pxl[2] = b
+            for i in range(self.n):
+                self.data[i] = (r, g, b)
         
-        lcd.draw_string(50,120, "before update", lcd.WHITE, lcd.RED )
         if display:
-            self._update( lcd, i )
-        lcd.draw_string(50,120, "after update", lcd.WHITE, lcd.RED )
+            self._update( idx=idx )
 
-    def _update( self, lcd, i=None ):
-        lcd.draw_string(50,120, "enter update", lcd.WHITE, lcd.RED )
-        if i is not None:
-            self.leds.set_led( i, self.data[i] )
+    def _update( self, idx=None ):
+        if idx is not None:
+            self.leds.set_led( idx, self.data[idx] )
         else:
             for i in range( self.n ):
                 self.leds.set_led( i, self.data[i] )
-        lcd.draw_string(50,120, "before display", lcd.WHITE, lcd.RED )
         self.leds.display()
-        lcd.draw_string(50,120, "after display", lcd.WHITE, lcd.RED )
 
     def display( self ):
         self._update()
@@ -43,33 +32,30 @@ class LedStrip():
         self.set( 0, 0, 0, display=True )
 
     def max( self ):
-        self.asdf( 255, 255, 255, i=2, display=True )
+        self.set( 255, 255, 255, display=True )
 
 class FadingStrip( LedStrip ):
 
-    def __init__( self ):
-        pass
+    def __init__( self, pin, n):
+        super().__init__( pin, n )
     
-    def set( self, r, g, b, i=None, display=False ):
-        def fade( data, clr, val ):
-            if val > data[clr]:
-                data[clr] = val
+    def set( self, r, g, b, idx=None, display=False ):
+        def fade( cval, setval ):
+            if setval >= cval:
+                return setval
             else:
-                data[clr] = data[clr] - 1
+                return cval - 1
             
-        if i is not None:
-            pxl = self.data[i]
-            fade( pxl, 0, r )
-            fade( pxl, 1, g )
-            fade( pxl, 2, b )
+        if idx is not None:
+            cr, cg, cb = self.data[idx]
+            self.data[idx] = ( fade( cr, r), fade( cg, g), fade( cb, b) )
         else:
-            for pxl in self.data:
-                fade( pxl, 0, r )
-                fade( pxl, 1, g )
-                fade( pxl, 2, b )
+            for i in range(self.n):
+                cr, cg, cb = self.data[i]
+                self.data[i] = ( fade( cr, r), fade( cg, g), fade( cb, b) )
 
         if display:
-            self._update( i )
+            self._update( idx )
 
         
         
