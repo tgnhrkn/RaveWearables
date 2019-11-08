@@ -8,7 +8,7 @@ test_pin = 16
 fpioa.set_function(test_pin,FPIOA.GPIO7)
 test_gpio=GPIO(GPIO.GPIO7,GPIO.IN)
 
-lcd.init(color=LCD.WHITE)
+lcd.init(color=lcd.WHITE)
 lcd.draw_string(0,0, "Welcome to Teagan's MaixPy!", lcd.BLACK, lcd.WHITE )
 if test_gpio.value() == 0:
     print( "pin 16 pulled down" )
