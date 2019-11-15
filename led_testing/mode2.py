@@ -10,7 +10,7 @@ for i in range( n_leds ):
     leds.set_led( i, (0xff, 0xff, 0xff ) )
 leds.display()
 
-def move (leds)
+def move ( leds )
     moving = 0
     while: moving != n_leds
         for i in range(n_leds):
