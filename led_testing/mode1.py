@@ -7,7 +7,6 @@ from Maix import FFT
 import image
 import lcd
 
-
 lcd.init()
 fm.register(8,  fm.fpioa.GPIO0)
 wifi_en=GPIO(GPIO.GPIO0,GPIO.OUT)
@@ -24,39 +23,42 @@ sample_points = 1024
 FFT_points = 512
 lcd_width = 320
 lcd_height = 240
-hist_num = 80 #changeable
+hist_num = 41 #changeable
 hist_width = 1#int(lcd_width / hist_num)#changeable
 x_shift = 0
 
 # init LEDs
-n_leds = 57 + 9
+n_leds = 41
 leds = ws2812( 6, n_leds ) # port 6, # leds
 for i in range( n_leds ):
     leds.set_led( i, (0x10, 0x10, 0x10 ) )  # all leds white
 leds.display()
 
-def fft_output(led):
+def fft_output(led, img):
     while True:
         audio = rx.record(sample_points)
         FFT_res = FFT.run(audio.to_bytes(),FFT_points)
         FFT_amp = FFT.amplitude(FFT_res)
         img = img.clear()
         x_shift = 0
-        for i in range(hist_num):
+        interval = int(hist_num/n_leds)
+        count = 0
+        for i in range(0, hist_num, interval):
             if FFT_amp[i] > 240:
                 hist_height = 240
-                brightness = 255
+                brightness = 255 / 5
             else:
                 hist_height = FFT_amp[i]
-                brightness = FFT_amp[i]
-            leds.set_led( i, (brightness, brightness, brightness) )
+                brightness =  FFT_amp[i]
+            leds.set_led( count, (35, brightness, 10) )
             img = img.draw_rectangle((x_shift,240-hist_height,hist_width,hist_height),[255,255,255],2,True)
             x_shift = x_shift + hist_width + 3
+            count = count + 1
         lcd.display(img)
         leds.display()
         
 
 try:
-    fft_output(leds)
-except:
-    print( "Interrupted" )
+    fft_output(leds, img)
+except Exception as e:
+    print(e)
