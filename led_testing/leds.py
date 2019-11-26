@@ -2,7 +2,7 @@ from modules import ws2812
 from time import sleep
 import random
 
-n_leds = 57 + 9
+n_leds = 4
 
 leds = ws2812( 6, n_leds )
 
@@ -48,7 +48,7 @@ def func4( leds ):
         sleep( 0.2 )
         
 try:
-    func4(leds)
+    func2(leds)
 except:
     print( "Interrupted" )
 
