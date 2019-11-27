@@ -20,12 +20,17 @@ class MoveAcross( Mode ):
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
         self.index = 0
+        
+    def enter_mode( self ):
+        self.strip.set( 0xff, 0, 0)
 
     def update_mode( self ):
         self.strip.set( 0xff, 0, 0, idx=self.index )
         self.index = (self.index + 1) % self.strip.n
         self.strip.set( 0, 0 , 0xff, idx=self.index )
         self.strip.display()
+        sleep(0.1)
+        
 
 class MusicFFT (Mode):
     def __init__( self, ledstrip ):
@@ -102,6 +107,7 @@ class FlashMode( Mode ):
                 self.strip.set( 0, 0, 0, display=True )
         
         self.count = self.count + 1
+        sleep(0.01)
 
 class RunningLights(Mode):
     def __init__( self, ledstrip ):
