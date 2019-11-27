@@ -9,7 +9,7 @@ import lcd
 bt_uart = None
 cv_uart = None
 lstrip = None
-n_modes = 3
+n_modes = 4
 
 #Main code file for the LED driving board
 # Tasks:
@@ -72,7 +72,8 @@ def init_modes():
     modes = list( [ Mode(lstrip) for _ in range(n_modes) ] )
     modes[0] = OffMode(lstrip) 
     modes[1] = FlashMode(lstrip) 
-    modes[2] = MoveAcrossMode(lstrip)
+    modes[2] = MoveAcross(lstrip)
+    modes[3] = RainbowCycle(lstrip)
     return modes
 
 def get_control( bt, cv ):
