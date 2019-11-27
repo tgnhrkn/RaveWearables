@@ -4,6 +4,7 @@ from machine import UART
 from board import board_info
 from modes import *
 from Led import *
+import lcd
 
 bt_uart = None
 cv_uart = None
@@ -22,8 +23,8 @@ def init_bt_uart():
     bits = 8
     timeout = 10
     buf_len = 1024
-    fm.register( board_info.PIN10, fm.fpioa.UART2_TX, force=True )
-    fm.register( board_info.PIN9, fm.fpioa.UART2_RX, force=True )
+    fm.register( board_info.PIN10, fm.fpioa.UART2_RX, force=True )
+    fm.register( board_info.PIN9, fm.fpioa.UART2_TX, force=True )
     return UART( UART.UART2, baud, bits, 0, 0, timeout=timeout, read_buf_len=buf_len )
 
 # returns None if there is no data in the buffer
@@ -42,21 +43,24 @@ def read_bt_uart():
 
 # run off pins 17 (RX) and 15 (TX)
 def init_cv_uart():
-    fm.register( board_info.PIN17, fm.fpioa.UART1_RX, force=True )
     fm.register( board_info.PIN15, fm.fpioa.UART1_TX, force=True )
+    fm.register( board_info.PIN17, fm.fpioa.UART1_RX, force=True )
     return UART( UART.UART1, 9600, 8, 0, 0, timeout=10, read_buf_len=1024 )
 
 def read_cv_uart():
     recv = cv_uart.read()
     if recv is None:
         return None
-    if b'0' in recv:
-        return b'0'
-    return recv[-1]
+    
+    try:
+        recv = recv.decode()
+        return int( recv[-1] )
+    except:
+        return None
 
 def init_leds():
     global lstrip
-    lstrip = LedStrip(6, 9)
+    lstrip = LedStrip(6, 45)
 
 def init_hw():
     global bt_uart, cv_uart
