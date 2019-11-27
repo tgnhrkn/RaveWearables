@@ -15,7 +15,7 @@ def RunningLights( red,  green,  blue,  WaveDelay):
         for i in range(NUM_LEDS): 
             leds.set(int(((math.sin(i+Position) * 127 + 128)/255)*red), int(((math.sin(i+Position) * 127 + 128)/255)*green), int(((math.sin(i+Position) * 127 + 128)/255)*blue), i)
         leds.display()
-        sleep(WaveDelay)
+        sleep(WaveDelay/150)
 
 
 def loop():

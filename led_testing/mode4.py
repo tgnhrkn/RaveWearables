@@ -5,11 +5,10 @@ from Led import LedStrip
 
 NUM_LEDS = 41
 leds = LedStrip( 6, NUM_LEDS )
+heat = [0] * NUM_LEDS
+cooldown = 0
 
-def Fire(Cooling, Sparking, SpeedDelay, heat):
-    
-    cooldown = 0
- 
+def Fire(Cooling, Sparking, SpeedDelay, heat, cooldown):
     # Step 1.  Cool down every cell a little
     for i in range(NUM_LEDS):
         cooldown = random.randint(0, (Cooling * 10) // NUM_LEDS + 2)
@@ -17,7 +16,7 @@ def Fire(Cooling, Sparking, SpeedDelay, heat):
         if cooldown > heat[i]: 
             heat[i]=0
         else:
-            heat[i]=heat[i] - cooldown
+            heat[i]= heat[i] - cooldown
 
 
     # Step 2.  Heat from each cell drifts 'up' and diffuses a little
@@ -58,7 +57,7 @@ def setPixelHeatColor(Pixel,  temperature):
 def loop():
     heat = [0] * NUM_LEDS
     while True:
-        Fire(55,120,.05,heat)
+        Fire(55,120,.05,heat, cooldown)
 
 try:
     loop()

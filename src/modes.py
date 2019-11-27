@@ -4,9 +4,9 @@ from Maix import GPIO
 from Maix import I2S
 from Maix import FFT
 from fpioa_manager import *
+import math
 
 class Mode():
-    
     def __init__( self, ledstrip ):
         self.strip = ledstrip
 
@@ -16,20 +16,23 @@ class Mode():
     def update_mode( self ):
         pass
 
-class MoveAcrossMode( Mode ):
-
+class MoveAcross( Mode ):
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
         self.index = 0
+        
+    def enter_mode( self ):
+        self.strip.set( 0xff, 0, 0)
 
     def update_mode( self ):
         self.strip.set( 0xff, 0, 0, idx=self.index )
         self.index = (self.index + 1) % self.strip.n
         self.strip.set( 0, 0 , 0xff, idx=self.index )
         self.strip.display()
+        sleep(0.1)
+        
 
 class MusicFFT (Mode):
-
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
         fm.register(20,fm.fpioa.I2S0_IN_D0)
@@ -41,13 +44,13 @@ class MusicFFT (Mode):
         self.rx.set_sample_rate(self.sample_rate)
         self.sample_points = 1024
         self.FFT_points = 512
-        self.hist_num = 41     #changeable
+        self.hist_num = 90     #changeable
         
     def update_mode( self ):
         audio = self.rx.record(self.sample_points)
         FFT_res = FFT.run(audio.to_bytes(),self.FFT_points)
         FFT_amp = FFT.amplitude(FFT_res)
-        interval = int(self.hist_num/self.strip.n)
+        interval = (self.hist_num//self.strip.n)
         count = 0
         for i in range(0, self.hist_num, interval):
             if FFT_amp[i] > 240:
@@ -74,6 +77,7 @@ class RedGreenSwitch (Mode):
         self.strip.set(0, 90, 0)
         self.strip.display()
         sleep(1)
+
 class OffMode( Mode ):
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
@@ -81,8 +85,7 @@ class OffMode( Mode ):
     def enter_mode( self ):
         self.strip.clear()
 
-class FlashMode( Mode ):
-    
+class FlashMode( Mode ):  
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
         self.mode = 0
@@ -104,4 +107,52 @@ class FlashMode( Mode ):
                 self.strip.set( 0, 0, 0, display=True )
         
         self.count = self.count + 1
+        sleep(0.01)
 
+class RunningLights(Mode):
+    def __init__( self, ledstrip ):
+        super().__init__( ledstrip )
+        self.red = 0xff
+        self.green = 0xff
+        self.blue = 0xff
+        self.WaveDelay = 10
+
+    def update_mode( self ):
+        Position = 0
+        for j in range(self.strip.n * 2):
+            Position = Position + 1
+            for i in range(self.strip.n): 
+                self.strip.set(int(((math.sin(i+Position) * 127 + 128)/255)*self.red), int(((math.sin(i+Position) * 127 + 128)/255)*self.green), int(((math.sin(i+Position) * 127 + 128)/255)*self.blue), i)
+            self.strip.display()
+            sleep(self.WaveDelay/300)
+
+class RainbowCycle(Mode):
+    def __init__( self, ledstrip ):
+        super().__init__( ledstrip )
+        self.c = [0] * 3
+        
+    def update_mode( self ):
+        i = 0
+        j = 0
+
+        for j in range(256 * 5): # 5 cycles of all colors on wheel
+            for i in range(self.strip.n): 
+                self.Wheel(self.c, ((i * 256 // self.strip.n) + j) & 255)
+                self.strip.set(self.c[0], self.c[1], self.c[2], i)
+            self.strip.display()
+
+    def Wheel(self, c, WheelPos ):
+        if WheelPos < 85:
+            c[0] = WheelPos * 3
+            c[1] = 255 - WheelPos * 3
+            c[2] = 0
+        elif WheelPos < 170:
+            WheelPos = WheelPos - 85
+            c[0] = 255 - WheelPos * 3
+            c[1] = 0
+            c[2] = WheelPos * 3
+        else :
+            WheelPos = WheelPos - 170
+            c[0] = 0
+            c[1] = WheelPos * 3
+            c[2] = 255 - WheelPos * 3
