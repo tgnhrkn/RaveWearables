@@ -57,5 +57,34 @@ class FadingStrip( LedStrip ):
         if display:
             self._update( idx )
 
+class LowPowerStrip( LedStrip ):
+    def __init__( self, pin, n ):
+        super().__init__( pin, n )
+
+    def set( self, r, g, b, idx=None, display=False ):
+        r = min( 50, r )
+        g = min( 50, g )
+        b = min( 50, b )
+
+        super().set( r, g, b, idx, display )
+
+class LowRangeStrip( LedStrip ):
+    def __init__( self, pin, n ):
+        super().__init__( pin, n )
+
+    def set( self, r, g, b, idx=None, display=False ):
+        def translate( cur, bh, nh ):
+            perc = cur / bh
+            return int(perc * nh)
+             
+        r = translate( r, 255, 50 )
+        g = translate( g, 255, 50 )
+        b = translate( b, 255, 50 )
+
+        super().set( r, g, b, idx, display )
+
+
+
+
         
         

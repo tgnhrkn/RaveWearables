@@ -9,7 +9,8 @@ import lcd
 bt_uart = None
 cv_uart = None
 lstrip = None
-n_modes = 4
+n_modes = 7
+cv_active = True
 
 #Main code file for the LED driving board
 # Tasks:
@@ -37,6 +38,10 @@ def read_bt_uart():
     
     try:
         recv = recv.decode()
+        if 'e' in recv:
+            set_cv_active(True)
+        elif 'd' in recv:
+            set_cv_active(False)
         return int( recv[-1] )
     except:
         return None
@@ -48,7 +53,10 @@ def init_cv_uart():
     return UART( UART.UART1, 9600, 8, 0, 0, timeout=10, read_buf_len=1024 )
 
 def read_cv_uart():
+    global cv_active
     recv = cv_uart.read()
+    if not cv_active:
+        return None
     if recv is None:
         return None
     
@@ -58,9 +66,10 @@ def read_cv_uart():
     except:
         return None
 
+
 def init_leds():
     global lstrip
-    lstrip = LedStrip(6, 45)
+    lstrip = LowRangeStrip(6, 45)
 
 def init_hw():
     global bt_uart, cv_uart
@@ -74,6 +83,9 @@ def init_modes():
     modes[1] = FlashMode(lstrip) 
     modes[2] = MoveAcross(lstrip)
     modes[3] = RainbowCycle(lstrip)
+    modes[4] = RedGreenSwitch(lstrip)
+    modes[5] = RunningLights(lstrip)
+    modes[6] = MusicFFT(lstrip)
     return modes
 
 def get_control( bt, cv ):
@@ -82,6 +94,10 @@ def get_control( bt, cv ):
     if cv is not None and ( cv >= 0 and cv < n_modes ):
         return cv
     return None
+
+def set_cv_active(set_to):
+    global cv_active
+    cv_active = set_to
 
 def run():
     init_hw()

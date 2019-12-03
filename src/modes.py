@@ -58,7 +58,8 @@ class MusicFFT (Mode):
                 brightness = 255
             else:
                 hist_height = FFT_amp[i]
-                brightness =  FFT_amp[i]
+                brightness = FFT_amp[i]
+
             self.strip.set(brightness, brightness, brightness, count)
             count = count + 1
         self.strip.display()
