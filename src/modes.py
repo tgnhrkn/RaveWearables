@@ -55,11 +55,11 @@ class MusicFFT (Mode):
         for i in range(0, self.hist_num, interval):
             if FFT_amp[i] > 240:
                 hist_height = 240
-                brightness = 255 / 5
+                brightness = 255
             else:
                 hist_height = FFT_amp[i]
                 brightness =  FFT_amp[i]
-            self.strip.set(35, brightness, 10, count)
+            self.strip.set(brightness, brightness, brightness, count)
             count = count + 1
         self.strip.display()
 
@@ -68,15 +68,22 @@ class RedGreenSwitch (Mode):
 
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
+        self.count = 0
 
+    def enter_mode( self ):
+        self.count = 0
+        self.strip.set( 255, 0, 0, display=True)
 
     def update_mode( self ):
-        self.strip.set(90, 0, 0)
-        self.strip.display()
-        sleep(1)
-        self.strip.set(0, 90, 0)
-        self.strip.display()
-        sleep(1)
+        self.count = self.count + 1
+        if self.count == 120:
+            self.count = 0
+        if self.count == 0:
+            self.strip.set( 255, 0, 0, display=True )
+
+        if self.count == 60:
+            self.strip.set( 0, 255, 0, display=True )
+        
 
 class OffMode( Mode ):
     def __init__( self, ledstrip ):
@@ -102,9 +109,9 @@ class FlashMode( Mode ):
             self.mode = 1 if self.mode == 0 else 0
 
             if self.mode == 1:
-                self.strip.set( 50, 50, 50, display=True )
+                self.strip.max()
             else:
-                self.strip.set( 0, 0, 0, display=True )
+                self.strip.clear()
         
         self.count = self.count + 1
         sleep(0.01)
@@ -116,30 +123,41 @@ class RunningLights(Mode):
         self.green = 0xff
         self.blue = 0xff
         self.WaveDelay = 10
+        self.j = 0
+
+    def enter_mode( self ):
+        self.j = 0
 
     def update_mode( self ):
-        Position = 0
-        for j in range(self.strip.n * 2):
-            Position = Position + 1
-            for i in range(self.strip.n): 
-                self.strip.set(int(((math.sin(i+Position) * 127 + 128)/255)*self.red), int(((math.sin(i+Position) * 127 + 128)/255)*self.green), int(((math.sin(i+Position) * 127 + 128)/255)*self.blue), i)
-            self.strip.display()
-            sleep(self.WaveDelay/300)
+        Position = self.j + 1
+        for i in range(self.strip.n): 
+            self.strip.set(int(((math.sin(i+Position) * 127 + 128)/255)*self.red), int(((math.sin(i+Position) * 127 + 128)/255)*self.green), int(((math.sin(i+Position) * 127 + 128)/255)*self.blue), i)
+        self.strip.display()
+
+        self.j = self.j + 1
+        if self.j == self.strip.n * 2:
+            self.j = 0
+        sleep(self.WaveDelay/300)
 
 class RainbowCycle(Mode):
     def __init__( self, ledstrip ):
         super().__init__( ledstrip )
         self.c = [0] * 3
+        self.j = 0
+
+    def enter_mode( self ):
+        self.j = 0
         
     def update_mode( self ):
-        i = 0
-        j = 0
+        
+        for i in range( self.strip.n ):
+            self.Wheel(self.c, ((i * 256 // self.strip.n) + self.j) & 255)
+            self.strip.set(self.c[0], self.c[1], self.c[2], i)
+        self.strip.display()
 
-        for j in range(256 * 5): # 5 cycles of all colors on wheel
-            for i in range(self.strip.n): 
-                self.Wheel(self.c, ((i * 256 // self.strip.n) + j) & 255)
-                self.strip.set(self.c[0], self.c[1], self.c[2], i)
-            self.strip.display()
+        self.j = self.j + 1
+        if self.j == 256*5:
+            self.j = 0
 
     def Wheel(self, c, WheelPos ):
         if WheelPos < 85:
