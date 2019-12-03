@@ -44,7 +44,12 @@ class FadingStrip( LedStrip ):
             if setval >= cval:
                 return setval
             else:
-                return cval - 1
+                drop = cval - setval
+                perc = setval / 255
+                perc = 1.0 - (perc/3)
+                drop_amt = perc * drop
+
+                return cval - int( drop_amt)
             
         if idx is not None:
             cr, cg, cb = self.data[idx]
@@ -68,7 +73,7 @@ class LowPowerStrip( LedStrip ):
 
         super().set( r, g, b, idx, display )
 
-class LowRangeStrip( LedStrip ):
+class LowRangeStrip( FadingStrip ):
     def __init__( self, pin, n ):
         super().__init__( pin, n )
 

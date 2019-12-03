@@ -59,9 +59,81 @@ class MusicFFT (Mode):
             else:
                 hist_height = FFT_amp[i]
                 brightness = FFT_amp[i]
-
-            self.strip.set(brightness, brightness, brightness, count)
+            
+            r,g,b = 0,0,0
+                
+            if brightness < 5 and brightness > 2:
+                g = 50
+            if brightness >= 5 and brightness < 20:
+                g = 200 + brightness
+                r = 200 + brightness
+            if brightness >= 20:
+                r = 200 + brightness
+            self.strip.set(r,g,b, count)
             count = count + 1
+        self.strip.display()
+
+class SideFFT( Mode ):
+    def __init__( self, ledstrip ):
+        super().__init__( ledstrip )
+        fm.register(20,fm.fpioa.I2S0_IN_D0)
+        fm.register(19,fm.fpioa.I2S0_WS)
+        fm.register(18,fm.fpioa.I2S0_SCLK)
+        self.rx = I2S(I2S.DEVICE_0)
+        self.rx.channel_config(self.rx.CHANNEL_0, self.rx.RECEIVER, align_mode = I2S.STANDARD_MODE)
+        self.sample_rate = 38640
+        self.rx.set_sample_rate(self.sample_rate)
+        self.sample_points = 1024
+        self.FFT_points = 512
+        self.hist_num = 90     #changeable
+
+        self.c = [0] * 3
+        self.j = 0
+
+        self.rain_vals = []
+        for i in range( self.strip.n ):
+            c = [0,0,0]
+            self.Wheel( c, ((i * 256 // self.strip.n ) + 0 ) & 255 )
+            self.rain_vals.append(c)
+
+    def Wheel(self, c, WheelPos ):
+        if WheelPos < 85:
+            c[0] = WheelPos * 3
+            c[1] = 255 - WheelPos * 3
+            c[2] = 0
+        elif WheelPos < 170:
+            WheelPos = WheelPos - 85
+            c[0] = 255 - WheelPos * 3
+            c[1] = 0
+            c[2] = WheelPos * 3
+        else :
+            WheelPos = WheelPos - 170
+            c[0] = 0
+            c[1] = WheelPos * 3
+            c[2] = 255 - WheelPos * 3
+            
+    def update_mode( self ):
+        audio = self.rx.record(self.sample_points)
+        FFT_res = FFT.run(audio.to_bytes(),self.FFT_points)
+        FFT_amp = FFT.amplitude(FFT_res)
+        interval = (self.hist_num//self.strip.n)
+        total = 0
+        for i in range(0, 20):
+            total = total + min( 255, FFT_amp[i] )
+
+        avg = total / 20
+        if avg > 50:
+            avg = 50
+        else:
+            avg = int( avg )
+
+        perc = avg / 50
+        n_lit = int(perc * self.strip.n)
+        for i in range(n_lit):
+            rv = self.rain_vals[i]
+            self.strip.set(rv[0],rv[1],rv[2],i)
+        for i in range(n_lit,self.strip.n):
+            self.strip.set(0,0,0,i)
         self.strip.display()
 
 

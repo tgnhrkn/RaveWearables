@@ -85,7 +85,8 @@ def init_modes():
     modes[3] = RainbowCycle(lstrip)
     modes[4] = RedGreenSwitch(lstrip)
     modes[5] = RunningLights(lstrip)
-    modes[6] = MusicFFT(lstrip)
+    #modes[6] = MusicFFT(lstrip)
+    modes[6] = SideFFT(lstrip)
     return modes
 
 def get_control( bt, cv ):
