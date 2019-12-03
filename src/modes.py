@@ -29,19 +29,8 @@ class MoveAcross( Mode ):
         while self.selectBase == self.selectMoving:
             self.selectMoving = random.randint(1, 3)
 
-        if self.selectBase == 1:
-            self.baseColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
-        if self.selectBase == 2:
-            self.baseColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
-        if self.selectBase == 3:
-            self.baseColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
-
-        if self.selectMoving == 1:
-            self.movingColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
-        if self.selectMoving == 2:
-            self.movingColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
-        if self.selectMoving == 3:
-            self.movingColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
+        self.setBase()
+        self.setMoving()
         
     def enter_mode( self ):
         self.strip.set( 0xff, 0, 0)
@@ -61,20 +50,26 @@ class MoveAcross( Mode ):
             while self.selectBase == self.selectMoving:
                 self.selectMoving = random.randint(1, 3)
             
-            if self.selectBase == 1:
-                self.baseColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]  
-            if self.selectBase == 2:
-                self.baseColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
-            if self.selectBase == 3:
-                self.baseColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
+            self.setBase()
+            self.setMoving()
 
-            if self.selectMoving == 1:
-                self.movingColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
-            if self.selectMoving == 2:
-                self.movingColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
-            if self.selectMoving == 3:
-                self.movingColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
         sleep(0.1)
+    
+    def setMoving(self):
+        if self.selectMoving == 1:
+            self.movingColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
+        if self.selectMoving == 2:
+            self.movingColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
+        if self.selectMoving == 3:
+            self.movingColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
+    
+    def setBase(self):
+        if self.selectBase == 1:
+            self.baseColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
+        if self.selectBase == 2:
+            self.baseColor = [random.randint(0, 50), random.randint(200, 0xff), random.randint(0, 50)]
+        if self.selectBase == 3:
+            self.baseColor = [random.randint(0, 50), random.randint(0, 50), random.randint(200, 0xff)]
         
 
 class MusicFFT (Mode):
