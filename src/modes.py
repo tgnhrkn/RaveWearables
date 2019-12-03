@@ -22,13 +22,13 @@ class MoveAcross( Mode ):
         self.low = 0
         self.high = 4
         self.count = 0
-        self.selectBase = random.randint(0,2)
-        self.selectMoving = random.randint(0,2)
         self.baseColor = [0, 0, 0]
         self.movingColor = [0, 0, 0]
+        self.selectBase = random.randint(1, 3)
+        self.selectMoving = random.randint(1, 3)
         while self.selectBase == self.selectMoving:
-            self.selectMoving = random.randint(0,2)
-        
+            self.selectMoving = random.randint(1, 3)
+
         if self.selectBase == 1:
             self.baseColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]
         if self.selectBase == 2:
@@ -56,10 +56,10 @@ class MoveAcross( Mode ):
         self.strip.display()
         if self.count == self.strip.n:
             self.count = 0
-            self.selectBase = random.randint(0,2)
-            self.selectMoving = random.randint(0,2)
+            self.selectBase = random.randint(1, 3)
+            self.selectMoving = random.randint(1, 3)
             while self.selectBase == self.selectMoving:
-                self.selectMoving = random.randint(0,2)
+                self.selectMoving = random.randint(1, 3)
             
             if self.selectBase == 1:
                 self.baseColor = [random.randint(200, 0xff), random.randint(0, 50), random.randint(0, 50)]  
