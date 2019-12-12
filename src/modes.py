@@ -52,8 +52,6 @@ class MoveAcross( Mode ):
             
             self.setBase()
             self.setMoving()
-
-        sleep(0.1)
     
     def setMoving(self):
         if self.selectMoving == 1:
